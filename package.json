@@ -4,6 +4,14 @@
   "description": "wcx 的 Pi preset：常用扩展、技能与提示词一键打包",
   "keywords": ["pi-package", "pi", "preset"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yayawcx/wcx-pi-preset.git"
+  },
+  "scripts": {
+    "verify": "node scripts/verify-manifest.mjs",
+    "prepack": "node scripts/verify-manifest.mjs"
+  },
   "files": ["extensions", "skills", "prompts", "themes", "node_modules"],
   "dependencies": {
     "@bacnh85/pi-init": "^0.1.7",
