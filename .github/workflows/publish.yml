@@ -1,0 +1,26 @@
+name: publish
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # 依赖必须在 CI 里重新装一遍：bundleDependencies 打的是 node_modules 的内容，
+      # 而 node_modules 不进 git，缺了这步发出去的包是空的。
+      - run: npm install --no-audit --no-fund
+      - run: npm run verify
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

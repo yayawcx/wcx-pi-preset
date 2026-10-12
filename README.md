@@ -4,6 +4,14 @@ wcx 的 Pi preset。把常用的 18 个 `pi-package` 打成一个包：一次安
 
 ## 安装
 
+从 npm 安装（推荐，装完不依赖 GitHub）：
+
+```bash
+pi install npm:wcx-pi-preset
+```
+
+或直接从仓库安装：
+
 ```bash
 pi install git:github.com/yayawcx/wcx-pi-preset
 ```
@@ -11,7 +19,7 @@ pi install git:github.com/yayawcx/wcx-pi-preset
 只想本次会话试用，不写进 settings：
 
 ```bash
-pi -e git:github.com/yayawcx/wcx-pi-preset
+pi -e npm:wcx-pi-preset
 ```
 
 安装后跑 `pi config` 确认资源都加载了、没有 warning。
@@ -58,9 +66,41 @@ pi -e git:github.com/yayawcx/wcx-pi-preset
 ## 本地验证
 
 ```bash
+npm run verify     # 校验 manifest 里每条资源路径真实存在
 pi -e .            # 会话级加载整个 preset
 pi install .       # 或装到个人配置
 pi config          # 查看资源加载情况和 warning
 ```
 
 每次加包后都要跑一遍 `pi -e .`，重点看 extension loader 的 warning。
+
+## 发布
+
+### 发到 npm
+
+```bash
+npm login          # 首次，或已设置 NPM_TOKEN 时用 --//registry.npmjs.org/:_authToken=$NPM_TOKEN
+npm run verify
+npm publish --access public
+```
+
+`prepack` 钩子会自动跑 `verify`，路径缺失会直接让打包失败，不会发出一个“装了但什么都没生效”的包。
+
+已装过的用户更新：
+
+```bash
+pi update npm:wcx-pi-preset
+```
+
+### 发版流程
+
+版本号用 Conventional Commits 语义：`fix:` → patch，`feat:` → minor，破坏性变更 → major。
+
+```bash
+npm version minor          # 改 package.json 版本并打 tag
+npm publish --access public
+```
+
+推 `v*` tag 会触发 `.github/workflows/publish.yml` 自动发布。仓库需要先配置 `NPM_TOKEN` secret（在 npmjs.com → Access Tokens 建 Automation token）。
+
+CI 里会重新 `npm install` 再 publish：`bundleDependencies` 打的是 `node_modules` 的内容，而 `node_modules` 不进 git，缺了这步发出去的包是空的。
